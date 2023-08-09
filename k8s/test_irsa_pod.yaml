@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: test-irsa
+  name: test-irsa
+  namespace: default 
+spec:
+  containers:
+  - command:
+    - sleep
+    - "500"
+    image: amazon/aws-cli
+    name: test-irsa
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+  serviceAccountName: test-irsa 
+  affinity:  
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: "env" 
+            operator: In
+            values:
+            - "staging"
+          - key: "managed-node" 
+            operator: In
+            values:
+            - "true"
+  tolerations: 
+  - key: "staging-only"
+    operator: "Equal"
+    value: "true"
+    effect: "PreferNoSchedule"
